@@ -173,7 +173,7 @@ export default function Home() {
       <input
   name={name}
   onChange={handleInputChange}
-  style={{ backgroundColor: "white", color: "black" }}
+  style={{ color: "black", backgroundColor: "white" }}
   className="w-full px-4 py-2 border border-orange-500 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600"
 />
 
