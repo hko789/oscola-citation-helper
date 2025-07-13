@@ -1,103 +1,237 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [sourceType, setSourceType] = useState("book");
+  const [formData, setFormData] = useState<any>({});
+  const [footnote, setFootnote] = useState("");
+  const [bibliography, setBibliography] = useState("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const sourceTypes = [
+    { value: "book", label: "Book" },
+    { value: "ukCase", label: "UK Case" },
+    { value: "ukAct", label: "UK Legislation (Act)" },
+    { value: "ukSI", label: "UK Statutory Instrument" },
+    { value: "euLaw", label: "EU Legislation" },
+    { value: "echrCase", label: "ECHR Case" },
+    { value: "article", label: "Journal Article" },
+  ];
+
+  const handleInputChange = (e: any) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const flipAuthorName = (name: string) => {
+    const parts = name.trim().split(" ");
+    if (parts.length < 2) return name;
+    const surname = parts.pop();
+    return `${surname} ${parts.join(" ")}`;
+  };
+
+  const generateCitation = (e: any) => {
+    e.preventDefault();
+    let f = "";
+    let b = "";
+
+    switch (sourceType) {
+      case "book": {
+        const { author, title, edition, publisher, year } = formData;
+        if (!author || !title || !year) return setFootnote("Missing required fields.");
+        const editionStr = edition ? `${edition} edn` : "";
+        const footnoteDetails = [editionStr, publisher, year].filter(Boolean).join(", ");
+        f = `${author}, _${title}_ (${footnoteDetails}).`;
+        b = `${flipAuthorName(author)}, _${title}_ (${footnoteDetails})`;
+        break;
+      }
+
+      case "ukCase": {
+        const { caseName, year, report, page } = formData;
+        f = `${caseName} [${year}] ${report} ${page}.`;
+        b = `${caseName} [${year}] ${report} ${page}`;
+        break;
+      }
+
+      case "ukAct": {
+        const { actName, year, section } = formData;
+        f = `${actName} ${year}${section ? `, s ${section}` : ""}.`;
+        b = `${actName} ${year}${section ? `, s ${section}` : ""}`;
+        break;
+      }
+
+      case "ukSI": {
+        const { title, year, number } = formData;
+        f = `${title} ${year}, SI ${number}.`;
+        b = `${title} ${year}, SI ${number}`;
+        break;
+      }
+
+      case "euLaw": {
+        const { title, year, series, issue } = formData;
+        f = `${title} [${year}] OJ ${series}${issue ? ` ${issue}` : ""}.`;
+        b = `${title} [${year}] OJ ${series}${issue ? ` ${issue}` : ""}`;
+        break;
+      }
+
+      case "echrCase": {
+        const { party, appNo, date } = formData;
+        f = `${party} App no ${appNo} (ECtHR, ${date}).`;
+        b = `${party} App no ${appNo} (ECtHR, ${date})`;
+        break;
+      }
+
+      case "article": {
+        const { author, title, year, volume, journal, page } = formData;
+        f = `${author}, ‘${title}’ [${year}] ${volume} ${journal} ${page}.`;
+        b = `${flipAuthorName(author)}, ‘${title}’ [${year}] ${volume} ${journal} ${page}`;
+        break;
+      }
+
+      default:
+        f = "Unsupported type.";
+        b = "Unsupported type.";
+    }
+
+    setFootnote(f);
+    setBibliography(b);
+  };
+
+  const renderFields = () => {
+    switch (sourceType) {
+      case "book":
+        return (
+          <>
+            <Input name="author" label="Author (required)" />
+            <Input name="title" label="Title (required)" />
+            <Input name="edition" label="Edition (optional)" />
+            <Input name="publisher" label="Publisher (optional)" />
+            <Input name="year" label="Year (required)" />
+          </>
+        );
+      case "ukCase":
+        return (
+          <>
+            <Input name="caseName" label="Case Name" />
+            <Input name="year" label="Year" />
+            <Input name="report" label="Law Report" />
+            <Input name="page" label="Page Number" />
+          </>
+        );
+      case "ukAct":
+        return (
+          <>
+            <Input name="actName" label="Act Title" />
+            <Input name="year" label="Year" />
+            <Input name="section" label="Section (optional)" />
+          </>
+        );
+      case "ukSI":
+        return (
+          <>
+            <Input name="title" label="SI Title" />
+            <Input name="year" label="Year" />
+            <Input name="number" label="SI Number" />
+          </>
+        );
+      case "euLaw":
+        return (
+          <>
+            <Input name="title" label="Title" />
+            <Input name="year" label="Year" />
+            <Input name="series" label="Series (e.g. L or C)" />
+            <Input name="issue" label="Issue Number (optional)" />
+          </>
+        );
+      case "echrCase":
+        return (
+          <>
+            <Input name="party" label="Case Name" />
+            <Input name="appNo" label="Application Number" />
+            <Input name="date" label="Judgment Date (e.g. 20 July 2004)" />
+          </>
+        );
+      case "article":
+        return (
+          <>
+            <Input name="author" label="Author" />
+            <Input name="title" label="Article Title" />
+            <Input name="year" label="Year" />
+            <Input name="volume" label="Volume" />
+            <Input name="journal" label="Journal Name" />
+            <Input name="page" label="First Page" />
+          </>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const Input = ({ name, label }: { name: string; label: string }) => (
+    <div>
+      <label className="block text-sm mb-1 font-semibold text-orange-600">{label}</label>
+      <input
+        name={name}
+        onChange={handleInputChange}
+        className="w-full px-4 py-2 border border-orange-500 text-black rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600"
+      />
     </div>
   );
+  
+
+  return (
+    <main className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-6">
+      <div className="max-w-xl w-full bg-white p-6 rounded-xl shadow-lg">
+        <h1 className="text-2xl font-bold text-center text-orange-600 mb-6">
+          OSCOLA Citation Generator
+        </h1>
+
+        <form onSubmit={generateCitation} className="space-y-4">
+          <div>
+          <label className="block mb-1 font-semibold text-orange-600">Select Source Type</label>
+
+            <select
+              value={sourceType}
+              onChange={(e) => {
+                setSourceType(e.target.value);
+                setFormData({});
+                setFootnote("");
+                setBibliography("");
+              }}
+              className="w-full p-2 border border-orange-500 rounded-md text-black"
+            >
+              {sourceTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {renderFields()}
+
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition"
+          >
+            Generate Citation
+          </button>
+        </form>
+
+        {footnote && (
+          <div className="mt-6 p-4 bg-gray-50 border-l-4 border-blue-600 text-gray-800">
+            <strong className="block mb-2">Footnote Citation:</strong>
+            <p className="italic">{footnote}</p>
+          </div>
+        )}
+
+        {bibliography && (
+          <div className="mt-4 p-4 bg-gray-50 border-l-4 border-green-600 text-gray-800">
+            <strong className="block mb-2">Bibliography Citation:</strong>
+            <p className="italic">{bibliography}</p>
+          </div>
+        )}
+      </div>
+    </main>
+  );
 }
+
