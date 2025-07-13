@@ -166,17 +166,17 @@ export default function Home() {
     }
   };
 
+  // ✅ FIXED HERE: added "bg-white" to ensure visibility
   const Input = ({ name, label }: { name: string; label: string }) => (
     <div>
       <label className="block text-sm mb-1 font-semibold text-orange-600">{label}</label>
       <input
         name={name}
         onChange={handleInputChange}
-        className="w-full px-4 py-2 border border-orange-500 text-black rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600"
+        className="w-full px-4 py-2 border border-orange-500 bg-white text-black rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600"
       />
     </div>
   );
-  
 
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-6">
@@ -187,7 +187,7 @@ export default function Home() {
 
         <form onSubmit={generateCitation} className="space-y-4">
           <div>
-          <label className="block mb-1 font-semibold text-orange-600">Select Source Type</label>
+            <label className="block mb-1 font-semibold text-orange-600">Select Source Type</label>
 
             <select
               value={sourceType}
@@ -197,7 +197,7 @@ export default function Home() {
                 setFootnote("");
                 setBibliography("");
               }}
-              className="w-full p-2 border border-orange-500 rounded-md text-black"
+              className="w-full p-2 border border-orange-500 rounded-md text-black bg-white"
             >
               {sourceTypes.map((type) => (
                 <option key={type.value} value={type.value}>
