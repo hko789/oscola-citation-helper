@@ -166,15 +166,17 @@ export default function Home() {
     }
   };
 
-  // ✅ FIXED HERE: added "bg-white" to ensure visibility
+  
   const Input = ({ name, label }: { name: string; label: string }) => (
     <div>
       <label className="block text-sm mb-1 font-semibold text-orange-600">{label}</label>
       <input
-        name={name}
-        onChange={handleInputChange}
-        className="w-full px-4 py-2 border border-orange-500 bg-white text-black rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600"
-      />
+  name={name}
+  onChange={handleInputChange}
+  style={{ backgroundColor: "white", color: "black" }}
+  className="w-full px-4 py-2 border border-orange-500 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600"
+/>
+
     </div>
   );
 
